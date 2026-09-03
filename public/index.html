@@ -55,19 +55,19 @@
           <div class="form-group">
             <label for="join-room-id">Room Code</label>
             <div class="input-wrapper">
-              <input type="text" id="join-room-id" placeholder="e.g. FIPSTER" maxlength="16" required autocomplete="off" style="text-transform: uppercase;">
+              <input type="text" id="join-room-id" placeholder="e.g. FIPSTER, Coastbuster, Daredevil, Licensing" maxlength="32" required autocomplete="off" style="text-transform: uppercase;">
               <button type="button" class="paste-btn" onclick="pasteRoomCode()" title="Paste from clipboard">📋</button>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="join-room-password">Room Password <span class="sub-label">(If room is protected)</span></label>
-            <input type="password" id="join-room-password" placeholder="Enter password (optional)">
+            <label for="join-room-password">Room Password</label>
+            <input type="password" id="join-room-password" placeholder="Enter password">
           </div>
 
           <div class="form-group">
             <label for="join-user-name">Your Display Name</label>
-            <input type="text" id="join-user-name" placeholder="e.g. Alex (Frontend Lead)" maxlength="24" required>
+            <input type="text" id="join-user-name" placeholder="e.g. Alex" maxlength="24" required>
           </div>
 
           <div class="form-group">
@@ -109,8 +109,8 @@
           </div>
 
           <div class="form-group">
-            <label for="create-room-password">Guest Room Password <span class="sub-label">(Optional password for guests to join)</span></label>
-            <input type="password" id="create-room-password" placeholder="e.g. secret42 (optional)">
+            <label for="create-room-password">Guest Room Password</label>
+            <input type="password" id="create-room-password" placeholder="Enter room password">
           </div>
 
           <div class="form-group">
