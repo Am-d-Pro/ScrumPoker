@@ -131,7 +131,8 @@ function handleCreateRoom(event) {
   event.preventDefault();
   const roomId = document.getElementById('create-room-id').value.trim().toUpperCase();
   const roomName = document.getElementById('create-room-name').value.trim();
-  const adminKey = document.getElementById('create-admin-key').value.trim();
+  const adminKeyInput = document.getElementById('create-admin-key');
+  const adminKey = adminKeyInput ? adminKeyInput.value.trim() : 'admin123';
   const password = document.getElementById('create-room-password').value.trim();
   const userName = document.getElementById('create-host-name').value.trim();
   const deckType = document.getElementById('create-deck-type').value;
@@ -169,7 +170,8 @@ function handleCreateRoom(event) {
 function handleCreateBatchRooms(event) {
   event.preventDefault();
   const masterSessionName = document.getElementById('batch-master-name').value.trim();
-  const adminKey = document.getElementById('batch-admin-key').value.trim();
+  const adminKeyInput = document.getElementById('batch-admin-key');
+  const adminKey = adminKeyInput ? adminKeyInput.value.trim() : 'admin123';
 
   const roomsConfig = [
     {
