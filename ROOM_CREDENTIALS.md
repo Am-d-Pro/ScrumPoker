@@ -15,8 +15,8 @@ When creating a 4-room batch session using the **"👑 4 Rooms Bundle"** tab, ea
 | **Room 3** | `LICENSING` | Squad C - Licensing | `MobileLead` | `pass3` |
 | **Room 4** | `DAREDEVIL` | Squad D - Daredevil | `DevOpsLead` | `pass4` |
 
-- **Master Admin PIN**: `admin123`
-- **Session Duration**: 1-Hour Ephemeral (auto-cleans memory after 1 hour)
+- **Master Admin Password**: `Pramod12`
+- **Session Duration & Cleanup**: Ephemeral auto-closure after **20 minutes of inactivity**
 
 ---
 
@@ -24,8 +24,8 @@ When creating a 4-room batch session using the **"👑 4 Rooms Bundle"** tab, ea
 
 When creating a single room using the **"⚡ Single Room"** tab:
 
-- **Constant Room Code**: `FE-POKER` (customizable to any constant string, e.g. `COASTBUSTER`, `ROOM1`)
-- **Default Admin PIN**: `admin123`
+- **Constant Room Code**: `FE-POKER` (customizable)
+- **Master Admin Password**: `Pramod12`
 - **Default Host Username**: `Sarah (Scrum Master)`
 - **Guest Room Password**: Optional (set by Admin during creation)
 

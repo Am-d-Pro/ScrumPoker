@@ -132,7 +132,7 @@ function handleCreateRoom(event) {
   const roomId = document.getElementById('create-room-id').value.trim().toUpperCase();
   const roomName = document.getElementById('create-room-name').value.trim();
   const adminKeyInput = document.getElementById('create-admin-key');
-  const adminKey = adminKeyInput ? adminKeyInput.value.trim() : 'admin123';
+  const adminKey = adminKeyInput ? adminKeyInput.value.trim() : 'Pramod12';
   const password = document.getElementById('create-room-password').value.trim();
   const userName = document.getElementById('create-host-name').value.trim();
   const deckType = document.getElementById('create-deck-type').value;
@@ -171,7 +171,7 @@ function handleCreateBatchRooms(event) {
   event.preventDefault();
   const masterSessionName = document.getElementById('batch-master-name').value.trim();
   const adminKeyInput = document.getElementById('batch-admin-key');
-  const adminKey = adminKeyInput ? adminKeyInput.value.trim() : 'admin123';
+  const adminKey = adminKeyInput ? adminKeyInput.value.trim() : 'Pramod12';
 
   const roomsConfig = [
     {
@@ -625,7 +625,7 @@ function submitAdminLogin() {
   const passInput = document.getElementById('admin-login-password');
   const pin = passInput ? passInput.value.trim() : '';
 
-  if (pin === 'admin123' || pin.length > 0) {
+  if (pin === 'Pramod12') {
     sessionAdminKey = pin;
     toggleAdminLoginModal();
 
@@ -645,7 +645,7 @@ function submitAdminLogin() {
     switchLandingTab('create');
     alert('👑 Admin Logged In Successfully! Single Room and 4 Rooms Bundle creation tools are now unlocked.');
   } else {
-    alert('Please enter a valid Admin PIN.');
+    alert('Invalid Admin PIN. Please enter the correct Admin password.');
   }
 }
 

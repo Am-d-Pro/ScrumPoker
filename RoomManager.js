@@ -36,7 +36,7 @@ class RoomManager {
           id: cfg.id,
           name: cfg.name,
           hostName: cfg.username,
-          adminKey: 'admin123',
+          adminKey: 'Pramod12',
           password: cfg.password,
           deckType: 'fibonacci'
         });
@@ -47,16 +47,16 @@ class RoomManager {
   createRoom({ id, name, hostName, hostAvatar, hostColor, adminKey, password, deckType = 'fibonacci', customDeckValues = [] }) {
     const roomId = (id ? id.trim().toUpperCase() : this.generateRoomId());
     const now = Date.now();
-    const ONE_HOUR = 60 * 60 * 1000;
+    const TWENTY_MINUTES = 20 * 60 * 1000;
 
     const room = {
       id: roomId,
       name: name || 'Planning Poker Session',
-      adminKey: adminKey || 'admin123',
+      adminKey: adminKey || 'Pramod12',
       password: password ? password.trim() : null,
       createdAt: now,
       lastActivity: now,
-      expiresAt: now + ONE_HOUR,
+      expiresAt: now + TWENTY_MINUTES,
       deckType: STANDARD_DECKS[deckType] ? deckType : 'custom',
       customDeckValues: Array.isArray(customDeckValues) && customDeckValues.length > 0
         ? customDeckValues
@@ -96,7 +96,7 @@ class RoomManager {
         id: constantCode,
         name: cfg.name || `${masterSessionName || 'Session'} - Room ${i + 1}`,
         hostName: cfg.username || `Admin-${i + 1}`,
-        adminKey: adminKey || 'admin123',
+        adminKey: adminKey || 'Pramod12',
         password: roomPass,
         deckType: deckType || 'fibonacci',
         customDeckValues
@@ -116,32 +116,28 @@ class RoomManager {
 
   touchActivity(room) {
     if (room) {
+      const TWENTY_MINUTES = 20 * 60 * 1000;
       room.lastActivity = Date.now();
-      // Keep permanent default rooms alive
-      if (['COASTBUSTER', 'FIPSTER', 'LICENSING', 'DAREDEVIL'].includes(room.id)) {
-        const ONE_HOUR = 60 * 60 * 1000;
-        room.expiresAt = Date.now() + ONE_HOUR;
-      }
+      room.expiresAt = Date.now() + TWENTY_MINUTES;
     }
   }
 
   extendRoomExpiration(roomId) {
     const room = this.getRoom(roomId);
     if (!room) return null;
-    const ONE_HOUR = 60 * 60 * 1000;
-    room.expiresAt = Math.max(room.expiresAt, Date.now()) + ONE_HOUR;
+    const TWENTY_MINUTES = 20 * 60 * 1000;
+    room.expiresAt = Math.max(room.expiresAt, Date.now()) + TWENTY_MINUTES;
     this.touchActivity(room);
     return room.expiresAt;
   }
 
   joinRoom(roomId, socketId, { name, avatar, color, isHost = false, adminKey = null, password = null, isObserver = false }) {
     const room = this.getRoom(roomId);
-    if (!room) return { error: 'Room not found or expired.' };
+    if (!room) return { error: 'Room not found or session closed due to 20 minutes of inactivity.' };
 
     const givenPass = password ? password.trim() : '';
     const roomPass = room.password ? room.password.trim() : '';
 
-    // Password verification logic
     if (roomPass !== '') {
       const isValidAdmin = adminKey && adminKey.trim() === room.adminKey;
       if (!isValidAdmin && givenPass !== roomPass) {
@@ -404,15 +400,11 @@ class RoomManager {
   cleanupExpiredRooms() {
     const now = Date.now();
     const expiredRoomIds = [];
-    const permanentRooms = ['COASTBUSTER', 'FIPSTER', 'LICENSING', 'DAREDEVIL'];
+    const TWENTY_MINUTES = 20 * 60 * 1000;
 
     for (const [roomId, room] of this.rooms.entries()) {
-      if (permanentRooms.includes(roomId)) {
-        // Keep permanent default rooms alive automatically
-        room.expiresAt = now + 60 * 60 * 1000;
-        continue;
-      }
-      if (now > room.expiresAt || (now - room.lastActivity > 60 * 60 * 1000)) {
+      // If inactive for > 20 minutes, purge/reset
+      if (now > room.expiresAt || (now - room.lastActivity > TWENTY_MINUTES)) {
         expiredRoomIds.push(roomId);
       }
     }
@@ -420,6 +412,9 @@ class RoomManager {
     for (const roomId of expiredRoomIds) {
       this.rooms.delete(roomId);
     }
+
+    // Re-initialize any purged default rooms with clean state
+    this.initDefaultRooms();
 
     return expiredRoomIds;
   }

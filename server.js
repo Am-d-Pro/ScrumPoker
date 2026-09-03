@@ -312,9 +312,9 @@ io.on('connection', (socket) => {
 setInterval(() => {
   const expiredRoomIds = roomManager.cleanupExpiredRooms();
   for (const roomId of expiredRoomIds) {
-    console.log(`[Auto-Expiration Worker] Purged expired room ${roomId}`);
+    console.log(`[Auto-Expiration Worker] Purged inactive room ${roomId}`);
     io.to(roomId).emit('room-expired', {
-      message: 'This planning poker session has reached its 1-hour time limit and has been automatically cleaned up.'
+      message: 'This session has closed due to 20 minutes of inactivity.'
     });
     io.in(roomId).socketsLeave(roomId);
   }
