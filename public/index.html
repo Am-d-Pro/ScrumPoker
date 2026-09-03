@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusPoker — Ephemeral Planning Poker for Agile Teams</title>
+  <meta name="description" content="Real-time Planning Poker with Fibonacci and Custom decks, Admin control, 4-room simultaneous batch creation, zero-signup 20+ guest access, and 1-hour ephemeral auto-expiration.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body class="dark-theme">
+  <!-- Confetti Canvas overlay -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div id="app" class="app-container">
+    
+    <!-- LANDING VIEW / HERO & JOIN -->
+    <div id="landing-view" class="view-screen active">
+      <div class="glow-orb orb-1"></div>
+      <div class="glow-orb orb-2"></div>
+
+      <header class="landing-header">
+        <div class="logo">
+          <span class="logo-icon">🃏</span>
+          <span class="logo-text">Nexus<span class="highlight">Poker</span></span>
+          <span class="badge-ephemeral">⚡ 1-Hour Ephemeral</span>
+        </div>
+        <p class="tagline">Agile estimation built for speed. Join instantly as a guest, or batch-create 4 password-protected rooms simultaneously!</p>
+      </header>
+
+      <div class="landing-card-container">
+        <!-- TAB TOGGLE (JOIN / SINGLE ROOM / 4 ROOMS BATCH) -->
+        <div class="tab-switcher">
+          <button id="tab-join-btn" class="tab-btn active" onclick="switchLandingTab('join')">
+            <span class="icon">🚀</span> Join Room
+          </button>
+          <button id="tab-create-btn" class="tab-btn" onclick="switchLandingTab('create')">
+            <span class="icon">⚡</span> Single Room
+          </button>
+          <button id="tab-batch-btn" class="tab-btn" onclick="switchLandingTab('batch')">
+            <span class="icon">👑</span> 4 Rooms Bundle
+          </button>
+        </div>
+
+        <!-- JOIN ROOM FORM -->
+        <form id="join-form" class="landing-form active" onsubmit="handleJoinRoom(event)">
+          <div class="form-group">
+            <label for="join-room-id">Room Code</label>
+            <div class="input-wrapper">
+              <input type="text" id="join-room-id" placeholder="e.g. A8F2K9" maxlength="10" required autocomplete="off" style="text-transform: uppercase;">
+              <button type="button" class="paste-btn" onclick="pasteRoomCode()" title="Paste from clipboard">📋</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="join-room-password">Room Password <span class="sub-label">(If room is protected)</span></label>
+            <input type="password" id="join-room-password" placeholder="Enter password (optional)">
+          </div>
+
+          <div class="form-group">
+            <label for="join-user-name">Your Display Name</label>
+            <input type="text" id="join-user-name" placeholder="e.g. Alex (Frontend Lead)" maxlength="24" required>
+          </div>
+
+          <div class="form-group">
+            <label>Choose Your Avatar & Color</label>
+            <div class="avatar-picker" id="join-avatar-picker"></div>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="custom-checkbox">
+              <input type="checkbox" id="join-is-observer">
+              <span class="checkmark"></span>
+              <span class="label-text">Join as Observer (Non-voting participant)</span>
+            </label>
+          </div>
+
+          <button type="submit" class="primary-btn btn-glow">
+            <span>Join Poker Room</span>
+            <span class="arrow">→</span>
+          </button>
+        </form>
+
+        <!-- CREATE SINGLE ROOM FORM (ADMIN) -->
+        <form id="create-form" class="landing-form" onsubmit="handleCreateRoom(event)">
+          <div class="form-group">
+            <label for="create-room-name">Session / Sprint Name</label>
+            <input type="text" id="create-room-name" placeholder="e.g. Sprint 42 Story Estimation" maxlength="40" required>
+          </div>
+
+          <div class="form-group">
+            <label for="create-admin-key">Admin Passcode / PIN <span class="sub-label">(For Host Controls)</span></label>
+            <input type="password" id="create-admin-key" placeholder="Enter secure PIN (default: admin123)" value="admin123" required>
+          </div>
+
+          <div class="form-group">
+            <label for="create-room-password">Guest Room Password <span class="sub-label">(Optional password for guests to join)</span></label>
+            <input type="password" id="create-room-password" placeholder="e.g. secret42 (optional)">
+          </div>
+
+          <div class="form-group">
+            <label for="create-host-name">Host Display Name</label>
+            <input type="text" id="create-host-name" placeholder="e.g. Sarah (Scrum Master)" maxlength="24" required>
+          </div>
+
+          <div class="form-group">
+            <label for="create-deck-type">Estimation Deck Type</label>
+            <select id="create-deck-type" onchange="toggleCustomDeckInput('create')">
+              <option value="fibonacci" selected>Fibonacci (0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ?, ☕)</option>
+              <option value="modified">Modified Fibonacci (0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?, ☕)</option>
+              <option value="tshirt">T-Shirt Sizes (XS, S, M, L, XL, XXL, ?, ☕)</option>
+              <option value="powers2">Powers of 2 (0, 1, 2, 4, 8, 16, 32, 64, ?, ☕)</option>
+              <option value="custom">✨ Custom Sequence...</option>
+            </select>
+          </div>
+
+          <div class="form-group hidden" id="create-custom-deck-group">
+            <label for="create-custom-deck-input">Custom Card Values <span class="sub-label">(Comma separated)</span></label>
+            <input type="text" id="create-custom-deck-input" placeholder="e.g. 1, 2, 3, 4, 5, 10, Bug, Coffee">
+          </div>
+
+          <div class="form-group">
+            <label>Host Avatar & Color</label>
+            <div class="avatar-picker" id="create-avatar-picker"></div>
+          </div>
+
+          <button type="submit" class="primary-btn btn-glow admin-glow">
+            <span>🚀 Create Ephemeral Room</span>
+            <span class="arrow">→</span>
+          </button>
+        </form>
+
+        <!-- CREATE BATCH 4 ROOMS FORM (ADMIN) -->
+        <form id="batch-form" class="landing-form" onsubmit="handleCreateBatchRooms(event)">
+          <div class="form-group">
+            <label for="batch-master-name">Master Session / Title</label>
+            <input type="text" id="batch-master-name" placeholder="e.g. Engineering All-Hands Estimation" value="Engineering All-Hands Sprint" required>
+          </div>
+
+          <div class="form-group">
+            <label for="batch-admin-key">Master Admin PIN</label>
+            <input type="password" id="batch-admin-key" value="admin123" required>
+          </div>
+
+          <div class="batch-rooms-grid">
+            <!-- Room 1 -->
+            <div class="batch-room-box">
+              <span class="batch-box-title">Room 1</span>
+              <input type="text" id="batch-r1-name" placeholder="Name" value="Squad A - Frontend" required>
+              <input type="text" id="batch-r1-user" placeholder="Username" value="FrontendLead" required>
+              <input type="password" id="batch-r1-pass" placeholder="Password" value="pass1" required>
+            </div>
+            <!-- Room 2 -->
+            <div class="batch-room-box">
+              <span class="batch-box-title">Room 2</span>
+              <input type="text" id="batch-r2-name" placeholder="Name" value="Squad B - Backend" required>
+              <input type="text" id="batch-r2-user" placeholder="Username" value="BackendLead" required>
+              <input type="password" id="batch-r2-pass" placeholder="Password" value="pass2" required>
+            </div>
+            <!-- Room 3 -->
+            <div class="batch-room-box">
+              <span class="batch-box-title">Room 3</span>
+              <input type="text" id="batch-r3-name" placeholder="Name" value="Squad C - Mobile" required>
+              <input type="text" id="batch-r3-user" placeholder="Username" value="MobileLead" required>
+              <input type="password" id="batch-r3-pass" placeholder="Password" value="pass3" required>
+            </div>
+            <!-- Room 4 -->
+            <div class="batch-room-box">
+              <span class="batch-box-title">Room 4</span>
+              <input type="text" id="batch-r4-name" placeholder="Name" value="Squad D - DevOps" required>
+              <input type="text" id="batch-r4-user" placeholder="Username" value="DevOpsLead" required>
+              <input type="password" id="batch-r4-pass" placeholder="Password" value="pass4" required>
+            </div>
+          </div>
+
+          <button type="submit" class="primary-btn btn-glow admin-glow">
+            <span>🔥 Create 4 Protected Rooms Simultaneously</span>
+            <span class="arrow">→</span>
+          </button>
+        </form>
+
+      </div>
+
+      <footer class="landing-footer">
+        <div class="feature-tag"><span>🔒</span> Username & Password Protected</div>
+        <div class="feature-tag"><span>👥</span> 20+ Concurrent Voters</div>
+        <div class="feature-tag"><span>🌐</span> Universal Reveal & Reset</div>
+        <div class="feature-tag"><span>⏳</span> Ephemeral 1-Hour Expiration</div>
+      </footer>
+    </div>
+
+    <!-- ADMIN BATCH 4-ROOM MASTER DASHBOARD -->
+    <div id="batch-dashboard-view" class="view-screen">
+      <header class="room-navbar">
+        <div class="brand">
+          <span class="logo-icon">👑</span>
+          <span class="room-title" id="batch-master-title">Admin Master Dashboard (4 Rooms)</span>
+        </div>
+        <button class="btn-danger-sm" onclick="leaveRoom()" title="Exit Hub">Exit Dashboard 🚪</button>
+      </header>
+
+      <main class="poker-workspace">
+        <div class="dashboard-header-bar glass-panel">
+          <h2>Simultaneous 4-Room Master Hub</h2>
+          <p>Each room has a unique Room Code, Username, and Guest Password. Share links or monitor activity.</p>
+        </div>
+
+        <!-- 4 ROOMS CARDS GRID -->
+        <div class="batch-cards-grid" id="batch-cards-container">
+          <!-- Dynamically populated 4 room cards -->
+        </div>
+      </main>
+    </div>
+
+    <!-- POKER ROOM VIEW -->
+    <div id="room-view" class="view-screen">
+      <!-- TOP NAVIGATION BAR -->
+      <header class="room-navbar">
+        <div class="brand">
+          <span class="logo-icon">🃏</span>
+          <span class="room-title" id="room-display-name">Sprint Estimation</span>
+        </div>
+
+        <!-- ROOM TIMER & EXPIRATION BANNER -->
+        <div class="timer-pill" id="room-timer-pill" title="Room automatically expires 1 hour after creation">
+          <span class="clock-icon">⏳</span>
+          <span class="timer-label">Session Expires:</span>
+          <span class="timer-countdown" id="timer-countdown">59:59</span>
+          <button class="btn-extend-mini hidden" id="btn-extend-room" onclick="extendRoomTime()" title="Extend session by +1 hour">
+            +1h
+          </button>
+        </div>
+
+        <!-- SHARE ROOM & CODE -->
+        <div class="navbar-actions">
+          <div class="room-code-badge" onclick="copyRoomLink()" title="Click to copy Room Link">
+            <span class="code-label">ROOM CODE:</span>
+            <span class="code-val" id="room-display-code">------</span>
+            <span class="copy-icon">🔗</span>
+          </div>
+
+          <!-- ADMIN HOST BADGE / CLAIM ADMIN -->
+          <div class="admin-badge-container">
+            <span id="host-indicator" class="host-pill hidden">👑 You are Admin</span>
+            <button id="btn-claim-admin" class="btn-secondary-sm" onclick="promptClaimAdmin()" title="Enter Admin PIN to gain Host Controls">
+              🔑 Claim Admin
+            </button>
+          </div>
+
+          <button class="btn-danger-sm" onclick="leaveRoom()" title="Leave session">Leave 🚪</button>
+        </div>
+      </header>
+
+      <!-- ADMIN CONTROL BAR (ADMIN SPECIFIC CONTROLS) -->
+      <section class="admin-control-bar" id="admin-control-bar">
+        <div class="admin-controls-wrapper">
+          <div class="host-title-tag">
+            <span>👑 Host Extra Controls</span>
+          </div>
+
+          <div class="control-actions">
+            <!-- LOCK VOTING -->
+            <button id="btn-toggle-lock" class="btn-action btn-lock" onclick="triggerToggleLock()">
+              <span class="icon" id="lock-icon">🔓</span> <span id="lock-text">Lock Votes</span>
+            </button>
+
+            <!-- CHANGE DECK -->
+            <button class="btn-action btn-deck" onclick="toggleDeckModal()">
+              <span class="icon">🎴</span> Change Deck
+            </button>
+
+            <!-- EDIT STORY -->
+            <button class="btn-action btn-story" onclick="toggleStoryModal()">
+              <span class="icon">📝</span> Edit Story
+            </button>
+
+            <!-- EXPORT SUMMARY -->
+            <button class="btn-action btn-export" onclick="exportResultsCSV()" title="Export summary to CSV">
+              <span class="icon">📥</span> Export CSV
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN POKER WORKSPACE -->
+      <main class="poker-workspace">
+        
+        <!-- CURRENT STORY & UNIVERSAL REVEAL/RESET ACTION BAR (ACCESSIBLE TO ALL USERS) -->
+        <section class="story-panel glass-panel">
+          <div class="story-info">
+            <div class="story-tag">Current Story</div>
+            <h2 class="story-title" id="current-story-title">Story #1: Initial Feature Estimation</h2>
+            <p class="story-description" id="current-story-desc">Select a card below to cast your vote.</p>
+          </div>
+
+          <!-- UNIVERSAL REVEAL & RESET BUTTONS FOR ALL USERS -->
+          <div class="universal-actions-group">
+            <button id="btn-universal-reveal" class="btn-action btn-reveal" onclick="triggerRevealVotes()" title="Reveal all votes (Available to all users)">
+              <span class="icon">👁️</span> Reveal Votes
+            </button>
+            <button id="btn-universal-reset" class="btn-action btn-reset" onclick="triggerResetVotes()" title="Clear votes for next story (Available to all users)">
+              <span class="icon">🔄</span> Reset / Next Story
+            </button>
+          </div>
+        </section>
+
+        <!-- POKER TABLE & PARTICIPANTS GRID (UP TO 20+ USERS) -->
+        <section class="poker-table-area">
+          <div class="poker-table glass-table">
+            <div class="table-center-indicator">
+              <div class="voted-count-display">
+                <span class="big-number" id="voted-count-num">0</span>
+                <span class="total-denom">/ <span id="total-voters-num">0</span> Voted</span>
+              </div>
+            </div>
+
+            <!-- PARTICIPANTS GRID -->
+            <div class="participants-grid" id="participants-grid">
+              <!-- Dynamically populated 20+ voter cards -->
+            </div>
+          </div>
+        </section>
+
+        <!-- REVEALED STATISTICS & DISTRIBUTION ANALYTICS PANEL -->
+        <section class="analytics-panel glass-panel hidden" id="analytics-panel">
+          <h3 class="section-heading">📊 Voting Analytics & Results</h3>
+          
+          <div class="stats-cards-row">
+            <div class="stat-card">
+              <span class="stat-label">Average Estimate</span>
+              <span class="stat-value" id="stat-avg">—</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Median Value</span>
+              <span class="stat-value" id="stat-median">—</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Most Common (Mode)</span>
+              <span class="stat-value" id="stat-mode">—</span>
+            </div>
+            <div class="stat-card highlight-card">
+              <span class="stat-label">Consensus Agreement</span>
+              <span class="stat-value" id="stat-consensus">0%</span>
+            </div>
+          </div>
+
+          <!-- CARD DISTRIBUTION HISTOGRAM -->
+          <div class="distribution-section">
+            <h4>Vote Distribution</h4>
+            <div class="distribution-bars" id="distribution-bars">
+              <!-- Bars generated dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- BOTTOM CARD SELECTION DECK BAR -->
+        <section class="deck-selection-bar">
+          <div class="deck-title-bar">
+            <span class="deck-label">Cast Your Estimate</span>
+            <span class="deck-info" id="deck-type-label">Fibonacci Deck</span>
+          </div>
+
+          <div class="cards-carousel" id="cards-carousel">
+            <!-- Cards rendered dynamically -->
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- DECK SELECTION MODAL (ADMIN) -->
+  <div id="deck-modal" class="modal-overlay hidden">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>🎴 Change Estimation Deck</h3>
+        <button class="modal-close-btn" onclick="toggleDeckModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Select Preset or Custom Deck</label>
+          <select id="modal-deck-type" onchange="toggleCustomDeckInput('modal')">
+            <option value="fibonacci">Fibonacci (0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ?, ☕)</option>
+            <option value="modified">Modified Fibonacci (0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?, ☕)</option>
+            <option value="tshirt">T-Shirt Sizes (XS, S, M, L, XL, XXL, ?, ☕)</option>
+            <option value="powers2">Powers of 2 (0, 1, 2, 4, 8, 16, 32, 64, ?, ☕)</option>
+            <option value="custom">Custom Sequence...</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="modal-custom-deck-group">
+          <label>Custom Card Values (Comma-separated)</label>
+          <input type="text" id="modal-custom-deck-input" placeholder="e.g. 1, 2, 3, 5, 8, 10, Bug">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="toggleDeckModal()">Cancel</button>
+        <button class="primary-btn" onclick="applyDeckChange()">Apply Deck</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT STORY MODAL (ADMIN) -->
+  <div id="story-modal" class="modal-overlay hidden">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>📝 Edit Current Story</h3>
+        <button class="modal-close-btn" onclick="toggleStoryModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Story Title / Ticket Name</label>
+          <input type="text" id="modal-story-title" placeholder="e.g. US-402: Payment Gateway Integration">
+        </div>
+        <div class="form-group">
+          <label>Description / Acceptance Criteria</label>
+          <textarea id="modal-story-desc" rows="3" placeholder="Brief details about the ticket..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="toggleStoryModal()">Cancel</button>
+        <button class="primary-btn" onclick="applyStoryChange()">Update Story</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLAIM ADMIN MODAL -->
+  <div id="admin-modal" class="modal-overlay hidden">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>🔑 Claim Admin Host Privileges</h3>
+        <button class="modal-close-btn" onclick="toggleAdminModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Enter Admin Passcode / PIN</label>
+          <input type="password" id="claim-admin-pin" placeholder="Enter session Admin PIN">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="toggleAdminModal()">Cancel</button>
+        <button class="primary-btn" onclick="submitClaimAdmin()">Verify & Claim Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Socket.io client script -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Application Client JS -->
+  <script src="app.js"></script>
+</body>
+</html>

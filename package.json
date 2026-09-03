@@ -1,0 +1,24 @@
+{
+  "name": "planning-poker",
+  "version": "1.0.0",
+  "description": "Real-time Planning Poker application with custom estimation decks, admin controls, 20+ guest support, and 1-hour ephemeral auto-expiration.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "planning-poker",
+    "scrum",
+    "agile",
+    "fibonacci",
+    "socketio",
+    "realtime"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}
