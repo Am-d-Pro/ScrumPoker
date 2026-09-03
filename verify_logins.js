@@ -2,7 +2,7 @@ const roomManager = require('./RoomManager');
 
 function testRoomLoginsAndLeave() {
   console.log('====================================================');
-  console.log('🔍 Testing Room Login & Leave Button Pipeline');
+  console.log('🔍 Testing VASPoker Room Login & Leave Button Pipeline');
   console.log('====================================================\n');
 
   // Test Leave Room Functionality

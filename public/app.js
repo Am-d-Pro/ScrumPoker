@@ -1,5 +1,5 @@
 // ==========================================================================
-// NEXUSPOKER — Frontend Application Client Logic
+// VASPOKER — Frontend Application Client Logic
 // ==========================================================================
 
 // Global State
@@ -103,7 +103,7 @@ function initSocket() {
   socket = io();
 
   socket.on('connect', () => {
-    console.log('Connected to NexusPoker Socket.IO Server:', socket.id);
+    console.log('Connected to VASPoker Socket.IO Server:', socket.id);
   });
 
   socket.on('room-state-updated', (roomState) => {

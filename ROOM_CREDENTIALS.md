@@ -1,4 +1,4 @@
-# NexusPoker — Constant Room Codes, Passwords & Credentials Guide
+# VASPoker — Constant Room Codes, Passwords & Credentials Guide
 
 This document contains the fixed constant room codes, usernames, passwords, and admin passcodes for single and 4-room batch sessions.
 

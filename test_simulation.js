@@ -2,7 +2,7 @@ const roomManager = require('./RoomManager');
 
 async function runTests() {
   console.log('====================================================');
-  console.log('🧪 Starting NexusPoker Universal Access & 4-Room Test');
+  console.log('🧪 Starting VASPoker Universal Access & 4-Room Test');
   console.log('====================================================\n');
 
   // Test 1: Password Protected Room Join
