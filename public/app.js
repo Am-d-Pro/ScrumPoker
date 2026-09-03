@@ -321,10 +321,8 @@ function showRoomView() {
 }
 
 function leaveRoom() {
-  if (socket) {
-    socket.emit('disconnect');
-    socket.disconnect();
-    socket.connect();
+  if (socket && socket.connected) {
+    socket.emit('leave-room');
   }
   if (expirationInterval) {
     clearInterval(expirationInterval);

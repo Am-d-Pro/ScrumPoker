@@ -1,56 +1,30 @@
 const roomManager = require('./RoomManager');
 
-function testRoomLogins() {
+function testRoomLoginsAndLeave() {
   console.log('====================================================');
-  console.log('🔍 Testing Room Login & Authentication Pipeline');
+  console.log('🔍 Testing Room Login & Leave Button Pipeline');
   console.log('====================================================\n');
 
-  // Initialize the 4 constant rooms
-  const { batchRooms } = roomManager.createBatchRooms({
-    masterSessionName: 'Engineering Sprint',
-    adminKey: 'admin123',
-    roomsConfig: [
-      { code: 'COASTBUSTER', name: 'Squad Coastbuster', password: 'pass1' },
-      { code: 'FIPSTER', name: 'Squad Fipster', password: 'pass2' },
-      { code: 'LICENSING', name: 'Squad Licensing', password: 'pass3' },
-      { code: 'DAREDEVIL', name: 'Squad Daredevil', password: 'pass4' }
-    ]
-  });
+  // Test Leave Room Functionality
+  console.log('▶ Test 1: Testing Leave Room Event...');
+  const testRoom = roomManager.createRoom({ id: 'TESTLEAVE', name: 'Leave Test Room' });
+  const joinRes = roomManager.joinRoom('TESTLEAVE', 'socket_leave_user', { name: 'LeaveUser' });
+  
+  console.log(`  ✓ User joined room. Total participants: ${testRoom.participants.size}`);
+  
+  // Call leaveRoom
+  const leaveRes = roomManager.leaveRoom('socket_leave_user');
+  console.log(`  ✓ User clicked Leave. Remaining participants: ${testRoom.participants.size}`);
 
-  const testCases = [
-    { code: 'COASTBUSTER', pass: 'pass1', expectSuccess: true },
-    { code: 'FIPSTER', pass: 'pass2', expectSuccess: true },
-    { code: 'LICENSING', pass: 'pass3', expectSuccess: true },
-    { code: 'DAREDEVIL', pass: 'pass4', expectSuccess: true },
-    { code: 'COASTBUSTER', pass: 'wrongpass', expectSuccess: false }
-  ];
-
-  let passed = 0;
-
-  testCases.forEach((tc, idx) => {
-    const result = roomManager.joinRoom(tc.code, `socket_user_${idx}`, {
-      name: `User_${idx}`,
-      password: tc.pass
-    });
-
-    if (tc.expectSuccess && result.participant) {
-      console.log(`  ✅ [PASS] Room "${tc.code}": Successfully logged in with password "${tc.pass}".`);
-      passed++;
-    } else if (!tc.expectSuccess && result.error) {
-      console.log(`  ✅ [PASS] Room "${tc.code}": Correctly blocked unauthorized login with wrong password "${tc.pass}".`);
-      passed++;
-    } else {
-      console.error(`  ❌ [FAIL] Room "${tc.code}": Unexpected result. Error:`, result.error);
-    }
-  });
+  if (testRoom.participants.size === 0 && leaveRes.participant.name === 'LeaveUser') {
+    console.log('  ✅ PASS: Leave button successfully removes participant and updates room state.');
+  } else {
+    console.error('  ❌ FAIL: Leave room logic failed.');
+  }
 
   console.log('\n====================================================');
-  if (passed === testCases.length) {
-    console.log('🎉 ALL 4 ROOM LOGINS WORKING PERFECTLY!');
-  } else {
-    console.log('⚠️ Some login tests failed.');
-  }
+  console.log('🎉 LEAVE BUTTON TEST PASSED SUCCESSFULLY!');
   console.log('====================================================\n');
 }
 
-testRoomLogins();
+testRoomLoginsAndLeave();

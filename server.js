@@ -284,6 +284,19 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Leave Room Explicitly
+  socket.on('leave-room', () => {
+    if (currentRoomId) {
+      const roomIdToUpdate = currentRoomId;
+      const result = roomManager.leaveRoom(socket.id);
+      socket.leave(roomIdToUpdate);
+      currentRoomId = null;
+      if (result && result.room) {
+        broadcastRoomState(roomIdToUpdate);
+      }
+    }
+  });
+
   // Disconnect
   socket.on('disconnect', () => {
     if (currentRoomId) {
