@@ -20,8 +20,9 @@ class RoomManager {
     return id;
   }
 
-  createRoom({ name, hostName, hostAvatar, hostColor, adminKey, password, deckType = 'fibonacci', customDeckValues = [] }) {
-    const roomId = this.generateRoomId();
+  createRoom({ id, name, hostName, hostAvatar, hostColor, adminKey, password, deckType = 'fibonacci', customDeckValues = [] }) {
+    // Use provided constant room code or generate random code
+    const roomId = (id ? id.trim().toUpperCase() : this.generateRoomId());
     const now = Date.now();
     const ONE_HOUR = 60 * 60 * 1000;
 
@@ -58,13 +59,17 @@ class RoomManager {
   }
 
   createBatchRooms({ masterSessionName, adminKey, deckType, customDeckValues, roomsConfig }) {
-    // roomsConfig is an array of 4 items: [{ name, username, password }, ...]
+    // Default constant codes for the 4 rooms
+    const defaultCodes = ['SQUAD-FE', 'SQUAD-BE', 'SQUAD-MOB', 'SQUAD-OPS'];
     const batchRooms = [];
     const roomIds = [];
 
     for (let i = 0; i < (roomsConfig?.length || 4); i++) {
       const cfg = roomsConfig[i] || {};
+      const constantCode = cfg.code ? cfg.code.trim().toUpperCase() : defaultCodes[i % defaultCodes.length];
+
       const room = this.createRoom({
+        id: constantCode,
         name: cfg.name || `${masterSessionName || 'Session'} - Room ${i + 1}`,
         hostName: cfg.username || `Admin-${i + 1}`,
         adminKey: adminKey || 'admin123',
@@ -184,7 +189,6 @@ class RoomManager {
     return { room, participant };
   }
 
-  // Universal Reveal: Any connected participant can reveal
   revealVotes(roomId) {
     const room = this.getRoom(roomId);
     if (!room) return null;
@@ -193,7 +197,6 @@ class RoomManager {
     return room;
   }
 
-  // Universal Reset: Any connected participant can reset
   resetVotes(roomId) {
     const room = this.getRoom(roomId);
     if (!room) return null;
@@ -220,7 +223,6 @@ class RoomManager {
       }
     }
 
-    // Reset votes when deck changes
     this.resetVotes(roomId);
     return room;
   }
@@ -230,7 +232,6 @@ class RoomManager {
     if (!room) return null;
     this.touchActivity(room);
 
-    // Archive current story if revealed
     if (room.votingState === 'revealed') {
       const stats = this.calculateStats(room);
       room.history.unshift({
@@ -290,7 +291,6 @@ class RoomManager {
         const val = participant.vote;
         distribution[val] = (distribution[val] || 0) + 1;
         
-        // Parse numerical value if applicable
         const num = parseFloat(val);
         if (!isNaN(num) && val !== '?' && val !== '☕') {
           votes.push(num);
@@ -307,13 +307,11 @@ class RoomManager {
       const sum = votes.reduce((acc, v) => acc + v, 0);
       average = Math.round((sum / votes.length) * 10) / 10;
 
-      // Median
       const sorted = [...votes].sort((a, b) => a - b);
       const mid = Math.floor(sorted.length / 2);
       median = sorted.length % 2 !== 0 ? sorted[mid] : Math.round(((sorted[mid - 1] + sorted[mid]) / 2) * 10) / 10;
     }
 
-    // Mode (most frequent vote value)
     let maxCount = 0;
     for (const [cardVal, count] of Object.entries(distribution)) {
       if (count > maxCount) {

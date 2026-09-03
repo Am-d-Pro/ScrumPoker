@@ -34,7 +34,7 @@
           <span class="logo-text">Nexus<span class="highlight">Poker</span></span>
           <span class="badge-ephemeral">⚡ 1-Hour Ephemeral</span>
         </div>
-        <p class="tagline">Agile estimation built for speed. Join instantly as a guest, or batch-create 4 password-protected rooms simultaneously!</p>
+        <p class="tagline">Agile estimation built for speed. Join instantly as a guest, or batch-create 4 password-protected rooms with constant room codes!</p>
       </header>
 
       <div class="landing-card-container">
@@ -56,7 +56,7 @@
           <div class="form-group">
             <label for="join-room-id">Room Code</label>
             <div class="input-wrapper">
-              <input type="text" id="join-room-id" placeholder="e.g. A8F2K9" maxlength="10" required autocomplete="off" style="text-transform: uppercase;">
+              <input type="text" id="join-room-id" placeholder="e.g. SQUAD-FE or ROOM1" maxlength="16" required autocomplete="off" style="text-transform: uppercase;">
               <button type="button" class="paste-btn" onclick="pasteRoomCode()" title="Paste from clipboard">📋</button>
             </div>
           </div>
@@ -92,6 +92,11 @@
 
         <!-- CREATE SINGLE ROOM FORM (ADMIN) -->
         <form id="create-form" class="landing-form" onsubmit="handleCreateRoom(event)">
+          <div class="form-group">
+            <label for="create-room-id">Constant Room Code <span class="sub-label">(Unique fixed code for this room)</span></label>
+            <input type="text" id="create-room-id" placeholder="e.g. FE-POKER" value="FE-POKER" maxlength="16" style="text-transform: uppercase;" required>
+          </div>
+
           <div class="form-group">
             <label for="create-room-name">Session / Sprint Name</label>
             <input type="text" id="create-room-name" placeholder="e.g. Sprint 42 Story Estimation" maxlength="40" required>
@@ -134,12 +139,12 @@
           </div>
 
           <button type="submit" class="primary-btn btn-glow admin-glow">
-            <span>🚀 Create Ephemeral Room</span>
+            <span>🚀 Create Constant Ephemeral Room</span>
             <span class="arrow">→</span>
           </button>
         </form>
 
-        <!-- CREATE BATCH 4 ROOMS FORM (ADMIN) -->
+        <!-- CREATE BATCH 4 ROOMS FORM (ADMIN WITH CONSTANT ROOM CODES) -->
         <form id="batch-form" class="landing-form" onsubmit="handleCreateBatchRooms(event)">
           <div class="form-group">
             <label for="batch-master-name">Master Session / Title</label>
@@ -155,6 +160,7 @@
             <!-- Room 1 -->
             <div class="batch-room-box">
               <span class="batch-box-title">Room 1</span>
+              <input type="text" id="batch-r1-code" placeholder="Constant Code" value="SQUAD-FE" style="text-transform: uppercase;" required>
               <input type="text" id="batch-r1-name" placeholder="Name" value="Squad A - Frontend" required>
               <input type="text" id="batch-r1-user" placeholder="Username" value="FrontendLead" required>
               <input type="password" id="batch-r1-pass" placeholder="Password" value="pass1" required>
@@ -162,6 +168,7 @@
             <!-- Room 2 -->
             <div class="batch-room-box">
               <span class="batch-box-title">Room 2</span>
+              <input type="text" id="batch-r2-code" placeholder="Constant Code" value="SQUAD-BE" style="text-transform: uppercase;" required>
               <input type="text" id="batch-r2-name" placeholder="Name" value="Squad B - Backend" required>
               <input type="text" id="batch-r2-user" placeholder="Username" value="BackendLead" required>
               <input type="password" id="batch-r2-pass" placeholder="Password" value="pass2" required>
@@ -169,6 +176,7 @@
             <!-- Room 3 -->
             <div class="batch-room-box">
               <span class="batch-box-title">Room 3</span>
+              <input type="text" id="batch-r3-code" placeholder="Constant Code" value="SQUAD-MOB" style="text-transform: uppercase;" required>
               <input type="text" id="batch-r3-name" placeholder="Name" value="Squad C - Mobile" required>
               <input type="text" id="batch-r3-user" placeholder="Username" value="MobileLead" required>
               <input type="password" id="batch-r3-pass" placeholder="Password" value="pass3" required>
@@ -176,6 +184,7 @@
             <!-- Room 4 -->
             <div class="batch-room-box">
               <span class="batch-box-title">Room 4</span>
+              <input type="text" id="batch-r4-code" placeholder="Constant Code" value="SQUAD-OPS" style="text-transform: uppercase;" required>
               <input type="text" id="batch-r4-name" placeholder="Name" value="Squad D - DevOps" required>
               <input type="text" id="batch-r4-user" placeholder="Username" value="DevOpsLead" required>
               <input type="password" id="batch-r4-pass" placeholder="Password" value="pass4" required>
@@ -183,7 +192,7 @@
           </div>
 
           <button type="submit" class="primary-btn btn-glow admin-glow">
-            <span>🔥 Create 4 Protected Rooms Simultaneously</span>
+            <span>🔥 Create 4 Constant Password-Protected Rooms</span>
             <span class="arrow">→</span>
           </button>
         </form>
@@ -191,7 +200,7 @@
       </div>
 
       <footer class="landing-footer">
-        <div class="feature-tag"><span>🔒</span> Username & Password Protected</div>
+        <div class="feature-tag"><span>🔒</span> Constant Room Codes & Passwords</div>
         <div class="feature-tag"><span>👥</span> 20+ Concurrent Voters</div>
         <div class="feature-tag"><span>🌐</span> Universal Reveal & Reset</div>
         <div class="feature-tag"><span>⏳</span> Ephemeral 1-Hour Expiration</div>
@@ -211,7 +220,7 @@
       <main class="poker-workspace">
         <div class="dashboard-header-bar glass-panel">
           <h2>Simultaneous 4-Room Master Hub</h2>
-          <p>Each room has a unique Room Code, Username, and Guest Password. Share links or monitor activity.</p>
+          <p>Each room has a constant unique Room Code, Username, and Guest Password. Share links or monitor activity.</p>
         </div>
 
         <!-- 4 ROOMS CARDS GRID -->

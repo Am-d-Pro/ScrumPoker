@@ -46,6 +46,7 @@ io.on('connection', (socket) => {
   socket.on('create-room', (data, callback) => {
     try {
       const room = roomManager.createRoom({
+        id: data.roomId,
         name: data.roomName,
         hostName: data.userName,
         hostAvatar: data.avatar,

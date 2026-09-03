@@ -129,6 +129,7 @@ function initSocket() {
 // Handle Create Single Room Form Submit
 function handleCreateRoom(event) {
   event.preventDefault();
+  const roomId = document.getElementById('create-room-id').value.trim().toUpperCase();
   const roomName = document.getElementById('create-room-name').value.trim();
   const adminKey = document.getElementById('create-admin-key').value.trim();
   const password = document.getElementById('create-room-password').value.trim();
@@ -144,6 +145,7 @@ function handleCreateRoom(event) {
   sessionAdminKey = adminKey;
 
   socket.emit('create-room', {
+    roomId,
     roomName,
     adminKey,
     password,
@@ -171,21 +173,25 @@ function handleCreateBatchRooms(event) {
 
   const roomsConfig = [
     {
+      code: document.getElementById('batch-r1-code').value.trim().toUpperCase(),
       name: document.getElementById('batch-r1-name').value.trim(),
       username: document.getElementById('batch-r1-user').value.trim(),
       password: document.getElementById('batch-r1-pass').value.trim()
     },
     {
+      code: document.getElementById('batch-r2-code').value.trim().toUpperCase(),
       name: document.getElementById('batch-r2-name').value.trim(),
       username: document.getElementById('batch-r2-user').value.trim(),
       password: document.getElementById('batch-r2-pass').value.trim()
     },
     {
+      code: document.getElementById('batch-r3-code').value.trim().toUpperCase(),
       name: document.getElementById('batch-r3-name').value.trim(),
       username: document.getElementById('batch-r3-user').value.trim(),
       password: document.getElementById('batch-r3-pass').value.trim()
     },
     {
+      code: document.getElementById('batch-r4-code').value.trim().toUpperCase(),
       name: document.getElementById('batch-r4-name').value.trim(),
       username: document.getElementById('batch-r4-user').value.trim(),
       password: document.getElementById('batch-r4-pass').value.trim()
