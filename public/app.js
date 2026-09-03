@@ -572,13 +572,59 @@ function extendRoomTime() {
   alert('Session extended by +1 hour!');
 }
 
-// Modals Management
+// Modals & Admin Unlock Management
 function toggleAdminLoginModal() {
-  document.getElementById('admin-login-modal').classList.toggle('hidden');
+  const modal = document.getElementById('admin-login-modal');
+  if (modal) {
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+      const passInput = document.getElementById('admin-login-password');
+      if (passInput) passInput.value = '';
+    }
+  }
+}
+
+function handleAdminLoginOrLogout() {
+  const createBtn = document.getElementById('tab-create-btn');
+  const isUnlocked = createBtn && !createBtn.classList.contains('hidden');
+
+  if (isUnlocked || sessionAdminKey !== null) {
+    adminLogout();
+  } else {
+    toggleAdminLoginModal();
+  }
+}
+
+function adminLogout() {
+  sessionAdminKey = null;
+
+  // Hide creation tabs
+  const createBtn = document.getElementById('tab-create-btn');
+  const batchBtn = document.getElementById('tab-batch-btn');
+  if (createBtn) createBtn.classList.add('hidden');
+  if (batchBtn) batchBtn.classList.add('hidden');
+
+  // Switch back to Join Room tab
+  switchLandingTab('join');
+
+  // Reset Trigger Button
+  const triggerBtn = document.getElementById('btn-admin-login-trigger');
+  if (triggerBtn) {
+    triggerBtn.innerHTML = '🔑 Admin Login (Unlock Room Creation)';
+    triggerBtn.style.borderColor = '';
+    triggerBtn.style.color = '';
+  }
+
+  const passInput = document.getElementById('admin-login-password');
+  if (passInput) passInput.value = '';
+
+  alert('🚪 Admin Logged Out successfully.');
 }
 
 function submitAdminLogin() {
-  const pin = document.getElementById('admin-login-password').value.trim();
+  const passInput = document.getElementById('admin-login-password');
+  const pin = passInput ? passInput.value.trim() : '';
+
   if (pin === 'admin123' || pin.length > 0) {
     sessionAdminKey = pin;
     toggleAdminLoginModal();
@@ -591,7 +637,7 @@ function submitAdminLogin() {
 
     const triggerBtn = document.getElementById('btn-admin-login-trigger');
     if (triggerBtn) {
-      triggerBtn.innerHTML = '👑 Admin Logged In (Creation Unlocked)';
+      triggerBtn.innerHTML = '🚪 Admin Logged In (Click to Logout)';
       triggerBtn.style.borderColor = '#10B981';
       triggerBtn.style.color = '#10B981';
     }
@@ -599,7 +645,7 @@ function submitAdminLogin() {
     switchLandingTab('create');
     alert('👑 Admin Logged In Successfully! Single Room and 4 Rooms Bundle creation tools are now unlocked.');
   } else {
-    alert('Invalid Admin PIN.');
+    alert('Please enter a valid Admin PIN.');
   }
 }
 

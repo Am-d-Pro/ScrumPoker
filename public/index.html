@@ -91,7 +91,7 @@
 
         <!-- ADMIN LOGIN UNLOCK BAR -->
         <div class="admin-login-bar">
-          <button id="btn-admin-login-trigger" class="btn-secondary-sm" onclick="toggleAdminLoginModal()">
+          <button id="btn-admin-login-trigger" class="btn-secondary-sm" onclick="handleAdminLoginOrLogout()">
             🔑 Admin Login (Unlock Room Creation)
           </button>
         </div>
@@ -468,7 +468,7 @@
       <div class="modal-body">
         <div class="form-group">
           <label>Enter Master Admin Passcode / PIN</label>
-          <input type="password" id="admin-login-password" placeholder="Enter PIN (default: admin123)" value="admin123">
+          <input type="password" id="admin-login-password" placeholder="Enter Admin PIN">
         </div>
       </div>
       <div class="modal-footer">
