@@ -10,6 +10,8 @@ const STANDARD_DECKS = {
 class RoomManager {
   constructor() {
     this.rooms = new Map();
+    // Pre-initialize the 4 permanent constant default rooms on startup
+    this.initDefaultRooms();
   }
 
   generateRoomId() {
@@ -20,8 +22,29 @@ class RoomManager {
     return id;
   }
 
+  initDefaultRooms() {
+    const defaultRoomsConfig = [
+      { id: 'COASTBUSTER', name: 'Squad A - Coastbuster', password: 'pass1', username: 'FrontendLead' },
+      { id: 'FIPSTER', name: 'Squad B - Fipster', password: 'pass2', username: 'BackendLead' },
+      { id: 'LICENSING', name: 'Squad C - Licensing', password: 'pass3', username: 'MobileLead' },
+      { id: 'DAREDEVIL', name: 'Squad D - Daredevil', password: 'pass4', username: 'DevOpsLead' }
+    ];
+
+    for (const cfg of defaultRoomsConfig) {
+      if (!this.rooms.has(cfg.id)) {
+        this.createRoom({
+          id: cfg.id,
+          name: cfg.name,
+          hostName: cfg.username,
+          adminKey: 'admin123',
+          password: cfg.password,
+          deckType: 'fibonacci'
+        });
+      }
+    }
+  }
+
   createRoom({ id, name, hostName, hostAvatar, hostColor, adminKey, password, deckType = 'fibonacci', customDeckValues = [] }) {
-    // Use provided constant room code or generate random code
     const roomId = (id ? id.trim().toUpperCase() : this.generateRoomId());
     const now = Date.now();
     const ONE_HOUR = 60 * 60 * 1000;
@@ -30,7 +53,7 @@ class RoomManager {
       id: roomId,
       name: name || 'Planning Poker Session',
       adminKey: adminKey || 'admin123',
-      password: password ? password.trim() : null, // Optional room password for guests
+      password: password ? password.trim() : null,
       createdAt: now,
       lastActivity: now,
       expiresAt: now + ONE_HOUR,
@@ -43,14 +66,14 @@ class RoomManager {
         description: 'Cast your estimates below.',
         link: ''
       },
-      votingState: 'voting', // 'voting' or 'revealed'
+      votingState: 'voting',
       isLocked: false,
       timer: {
         duration: 0,
         remaining: 0,
         isRunning: false
       },
-      participants: new Map(), // socketId -> participant object
+      participants: new Map(),
       history: []
     };
 
@@ -59,21 +82,22 @@ class RoomManager {
   }
 
   createBatchRooms({ masterSessionName, adminKey, deckType, customDeckValues, roomsConfig }) {
-    // Default constant codes for the 4 rooms
     const defaultCodes = ['COASTBUSTER', 'FIPSTER', 'LICENSING', 'DAREDEVIL'];
+    const defaultPasswords = ['pass1', 'pass2', 'pass3', 'pass4'];
     const batchRooms = [];
     const roomIds = [];
 
-    for (let i = 0; i < (roomsConfig?.length || 4); i++) {
-      const cfg = roomsConfig[i] || {};
-      const constantCode = cfg.code ? cfg.code.trim().toUpperCase() : defaultCodes[i % defaultCodes.length];
+    for (let i = 0; i < 4; i++) {
+      const cfg = (roomsConfig && roomsConfig[i]) || {};
+      const constantCode = cfg.code ? cfg.code.trim().toUpperCase() : defaultCodes[i];
+      const roomPass = cfg.password ? cfg.password.trim() : defaultPasswords[i];
 
       const room = this.createRoom({
         id: constantCode,
         name: cfg.name || `${masterSessionName || 'Session'} - Room ${i + 1}`,
         hostName: cfg.username || `Admin-${i + 1}`,
         adminKey: adminKey || 'admin123',
-        password: cfg.password || null,
+        password: roomPass,
         deckType: deckType || 'fibonacci',
         customDeckValues
       });
@@ -86,12 +110,18 @@ class RoomManager {
 
   getRoom(roomId) {
     if (!roomId) return null;
-    return this.rooms.get(roomId.toUpperCase()) || null;
+    const cleanId = roomId.trim().toUpperCase();
+    return this.rooms.get(cleanId) || null;
   }
 
   touchActivity(room) {
     if (room) {
       room.lastActivity = Date.now();
+      // Keep permanent default rooms alive
+      if (['COASTBUSTER', 'FIPSTER', 'LICENSING', 'DAREDEVIL'].includes(room.id)) {
+        const ONE_HOUR = 60 * 60 * 1000;
+        room.expiresAt = Date.now() + ONE_HOUR;
+      }
     }
   }
 
@@ -108,23 +138,24 @@ class RoomManager {
     const room = this.getRoom(roomId);
     if (!room) return { error: 'Room not found or expired.' };
 
-    // Check room password if password protected and user is not claiming valid adminKey
-    if (room.password && room.password !== '') {
-      const isValidAdmin = adminKey === room.adminKey;
-      if (!isValidAdmin && password !== room.password) {
+    const givenPass = password ? password.trim() : '';
+    const roomPass = room.password ? room.password.trim() : '';
+
+    // Password verification logic
+    if (roomPass !== '') {
+      const isValidAdmin = adminKey && adminKey.trim() === room.adminKey;
+      if (!isValidAdmin && givenPass !== roomPass) {
         return { error: 'Incorrect Room Password.', requiresPassword: true };
       }
     }
 
     this.touchActivity(room);
 
-    // Validate admin key if claiming host
     let assignedHost = isHost;
-    if (isHost && adminKey && adminKey !== room.adminKey) {
-      assignedHost = false; // Invalid admin key, join as standard participant
+    if (isHost && adminKey && adminKey.trim() !== room.adminKey) {
+      assignedHost = false;
     }
 
-    // Check if room has no host yet, promote first joiner if requested
     if (room.participants.size === 0) {
       assignedHost = true;
     }
@@ -132,7 +163,7 @@ class RoomManager {
     const participant = {
       id: crypto.randomUUID(),
       socketId,
-      name: name.trim() || `Guest-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: name ? name.trim() : `Guest-${Math.floor(1000 + Math.random() * 9000)}`,
       avatar: avatar || '⚡',
       color: color || '#6366F1',
       isHost: assignedHost,
@@ -154,7 +185,6 @@ class RoomManager {
         room.participants.delete(socketId);
         this.touchActivity(room);
 
-        // Reassign host if host left and participants remain
         if (wasHost && room.participants.size > 0) {
           const nextParticipant = room.participants.values().next().value;
           nextParticipant.isHost = true;
@@ -177,7 +207,6 @@ class RoomManager {
 
     this.touchActivity(room);
 
-    // Toggle vote off if same card clicked
     if (participant.vote === cardValue) {
       participant.vote = null;
       participant.votedAt = null;
@@ -375,8 +404,14 @@ class RoomManager {
   cleanupExpiredRooms() {
     const now = Date.now();
     const expiredRoomIds = [];
+    const permanentRooms = ['COASTBUSTER', 'FIPSTER', 'LICENSING', 'DAREDEVIL'];
 
     for (const [roomId, room] of this.rooms.entries()) {
+      if (permanentRooms.includes(roomId)) {
+        // Keep permanent default rooms alive automatically
+        room.expiresAt = now + 60 * 60 * 1000;
+        continue;
+      }
       if (now > room.expiresAt || (now - room.lastActivity > 60 * 60 * 1000)) {
         expiredRoomIds.push(roomId);
       }
