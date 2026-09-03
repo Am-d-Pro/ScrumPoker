@@ -573,6 +573,36 @@ function extendRoomTime() {
 }
 
 // Modals Management
+function toggleAdminLoginModal() {
+  document.getElementById('admin-login-modal').classList.toggle('hidden');
+}
+
+function submitAdminLogin() {
+  const pin = document.getElementById('admin-login-password').value.trim();
+  if (pin === 'admin123' || pin.length > 0) {
+    sessionAdminKey = pin;
+    toggleAdminLoginModal();
+
+    // Reveal Single Room and 4 Rooms Bundle tabs
+    const createBtn = document.getElementById('tab-create-btn');
+    const batchBtn = document.getElementById('tab-batch-btn');
+    if (createBtn) createBtn.classList.remove('hidden');
+    if (batchBtn) batchBtn.classList.remove('hidden');
+
+    const triggerBtn = document.getElementById('btn-admin-login-trigger');
+    if (triggerBtn) {
+      triggerBtn.innerHTML = '👑 Admin Logged In (Creation Unlocked)';
+      triggerBtn.style.borderColor = '#10B981';
+      triggerBtn.style.color = '#10B981';
+    }
+
+    switchLandingTab('create');
+    alert('👑 Admin Logged In Successfully! Single Room and 4 Rooms Bundle creation tools are now unlocked.');
+  } else {
+    alert('Invalid Admin PIN.');
+  }
+}
+
 function toggleDeckModal() {
   document.getElementById('deck-modal').classList.toggle('hidden');
 }

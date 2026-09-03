@@ -37,15 +37,15 @@
       </header>
 
       <div class="landing-card-container">
-        <!-- TAB TOGGLE (JOIN / SINGLE ROOM / 4 ROOMS BATCH) -->
+        <!-- TAB TOGGLE (JOIN / SINGLE ROOM / 4 ROOMS BATCH - CREATION TABS HIDDEN UNTIL ADMIN LOGIN) -->
         <div class="tab-switcher">
           <button id="tab-join-btn" class="tab-btn active" onclick="switchLandingTab('join')">
             <span class="icon">🚀</span> Join Room
           </button>
-          <button id="tab-create-btn" class="tab-btn" onclick="switchLandingTab('create')">
+          <button id="tab-create-btn" class="tab-btn hidden" onclick="switchLandingTab('create')">
             <span class="icon">⚡</span> Single Room
           </button>
-          <button id="tab-batch-btn" class="tab-btn" onclick="switchLandingTab('batch')">
+          <button id="tab-batch-btn" class="tab-btn hidden" onclick="switchLandingTab('batch')">
             <span class="icon">👑</span> 4 Rooms Bundle
           </button>
         </div>
@@ -88,6 +88,13 @@
             <span class="arrow">→</span>
           </button>
         </form>
+
+        <!-- ADMIN LOGIN UNLOCK BAR -->
+        <div class="admin-login-bar">
+          <button id="btn-admin-login-trigger" class="btn-secondary-sm" onclick="toggleAdminLoginModal()">
+            🔑 Admin Login (Unlock Room Creation)
+          </button>
+        </div>
 
         <!-- CREATE SINGLE ROOM FORM (ADMIN) -->
         <form id="create-form" class="landing-form" onsubmit="handleCreateRoom(event)">
@@ -447,6 +454,26 @@
       <div class="modal-footer">
         <button class="btn-secondary" onclick="toggleAdminModal()">Cancel</button>
         <button class="primary-btn" onclick="submitClaimAdmin()">Verify & Claim Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANDING ADMIN LOGIN MODAL -->
+  <div id="admin-login-modal" class="modal-overlay hidden">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>🔑 Admin Login</h3>
+        <button class="modal-close-btn" onclick="toggleAdminLoginModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Enter Master Admin Passcode / PIN</label>
+          <input type="password" id="admin-login-password" placeholder="Enter PIN (default: admin123)" value="admin123">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="toggleAdminLoginModal()">Cancel</button>
+        <button class="primary-btn" onclick="submitAdminLogin()">Login as Admin</button>
       </div>
     </div>
   </div>
