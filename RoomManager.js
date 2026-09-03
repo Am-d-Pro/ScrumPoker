@@ -60,7 +60,7 @@ class RoomManager {
 
   createBatchRooms({ masterSessionName, adminKey, deckType, customDeckValues, roomsConfig }) {
     // Default constant codes for the 4 rooms
-    const defaultCodes = ['SQUAD-FE', 'SQUAD-BE', 'SQUAD-MOB', 'SQUAD-OPS'];
+    const defaultCodes = ['COASTBUSTER', 'FIPSTER', 'LICENSING', 'DAREDEVIL'];
     const batchRooms = [];
     const roomIds = [];
 
